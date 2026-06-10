@@ -2,6 +2,8 @@
   "name": "support-platform-web",
   "version": "1.0.0",
   "description": "Enterprise Support Ticket Platform - Angular web client",
+  "author": "Juan Francisco Martínez Morales",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "ng": "ng",

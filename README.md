@@ -1,5 +1,8 @@
 # Enterprise Support Ticket Platform
 
+[![CI](https://github.com/YOUR_GITHUB_USER/support-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USER/support-platform/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 A production-shaped, event-driven support desk built to demonstrate senior-level
 engineering across the stack: **Angular 22** SPA, **NestJS 11** API + worker,
 **PostgreSQL 16**, **RabbitMQ 3.13**, orchestrated with **Docker Compose**.
@@ -23,6 +26,7 @@ asynchronously from a real event stream.
 - [Environment variables](#environment-variables)
 - [API overview](#api-overview)
 - [Design decisions](#design-decisions)
+- [License](#license)
 
 ---
 
@@ -267,3 +271,7 @@ lists, and a structured error body (`statusCode`, `error`, `message`, `path`,
   would commit migrations and switch the command to `prisma migrate deploy`.
 - **Bounded in-queue retries** (no delay) — simple and dependency-free; true
   backoff would use the RabbitMQ delayed-message plugin or a TTL retry queue.
+
+## License
+
+[MIT](LICENSE) © Juan Francisco Martínez Morales

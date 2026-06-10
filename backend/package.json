@@ -2,9 +2,9 @@
   "name": "support-platform-api",
   "version": "1.0.0",
   "description": "Enterprise Support Ticket Platform - NestJS API",
-  "author": "",
+  "author": "Juan Francisco Martínez Morales",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
