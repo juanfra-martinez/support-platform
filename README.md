@@ -1,6 +1,6 @@
 # Enterprise Support Ticket Platform
 
-[![CI](https://github.com/YOUR_GITHUB_USER/support-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_GITHUB_USER/support-platform/actions/workflows/ci.yml)
+[![CI](https://github.com/juanfra-martinez/support-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/juanfra-martinez/support-platform/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 A production-shaped, event-driven support desk built to demonstrate senior-level
