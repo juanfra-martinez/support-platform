@@ -1,0 +1,227 @@
+// Enterprise Support Ticket Platform - Prisma schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Enums ----------
+enum Role {
+  ADMIN
+  AGENT
+  CUSTOMER
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  PENDING
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum NotificationType {
+  TICKET_CREATED
+  TICKET_UPDATED
+  TICKET_ASSIGNED
+  TICKET_CLOSED
+  COMMENT_ADDED
+}
+
+enum OutboxStatus {
+  PENDING
+  DISPATCHED
+  FAILED
+}
+
+// ---------- Tenancy & Identity ----------
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users         User[]
+  tickets       Ticket[]
+  auditLogs     AuditLog[]
+  ticketMetrics TicketMetricDaily[]
+
+  @@map("organizations")
+}
+
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  passwordHash   String
+  firstName      String
+  lastName       String
+  role           Role      @default(CUSTOMER)
+  isActive       Boolean   @default(true)
+  lastLoginAt    DateTime?
+  organizationId String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization    Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdTickets  Ticket[]       @relation("TicketCreatedBy")
+  assignedTickets Ticket[]       @relation("TicketAssignedTo")
+  comments        Comment[]
+  notifications   Notification[]
+  auditLogs       AuditLog[]
+  refreshTokens   RefreshToken[]
+
+  @@index([organizationId])
+  @@index([role])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String    @unique
+  familyId  String
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+  @@map("refresh_tokens")
+}
+
+// ---------- Core Domain ----------
+model Ticket {
+  id             String         @id @default(uuid())
+  reference      String         @unique
+  title          String
+  description    String
+  status         TicketStatus   @default(OPEN)
+  priority       TicketPriority @default(MEDIUM)
+  category       String?
+  organizationId String
+  createdById    String
+  assignedToId   String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  closedAt       DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User         @relation("TicketCreatedBy", fields: [createdById], references: [id])
+  assignedTo   User?        @relation("TicketAssignedTo", fields: [assignedToId], references: [id])
+  comments     Comment[]
+
+  @@index([organizationId, status])
+  @@index([assignedToId])
+  @@index([createdById])
+  @@map("tickets")
+}
+
+model Comment {
+  id         String   @id @default(uuid())
+  ticketId   String
+  authorId   String
+  body       String
+  isInternal Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id])
+
+  @@index([ticketId])
+  @@map("comments")
+}
+
+// ---------- Projection tables (written by event consumers) ----------
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  ticketId  String?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id             String   @id @default(uuid())
+  action         String
+  entityType     String
+  entityId       String
+  actorId        String?
+  organizationId String?
+  metadata       Json?
+  correlationId  String?
+  createdAt      DateTime @default(now())
+
+  actor        User?         @relation(fields: [actorId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([organizationId])
+  @@map("audit_logs")
+}
+
+model TicketMetricDaily {
+  id              String   @id @default(uuid())
+  organizationId  String
+  date            DateTime @db.Date
+  ticketsCreated  Int      @default(0)
+  ticketsClosed   Int      @default(0)
+  ticketsAssigned Int      @default(0)
+  updatedAt       DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, date])
+  @@map("ticket_metrics_daily")
+}
+
+// ---------- Reliability infrastructure ----------
+model EventOutbox {
+  id            String       @id @default(uuid())
+  routingKey    String
+  payload       Json
+  correlationId String?
+  status        OutboxStatus @default(PENDING)
+  attempts      Int          @default(0)
+  lastError     String?
+  createdAt     DateTime     @default(now())
+  dispatchedAt  DateTime?
+
+  @@index([status, createdAt])
+  @@map("event_outbox")
+}
+
+model ProcessedEvent {
+  id          String   @id @default(uuid())
+  eventId     String
+  consumer    String
+  processedAt DateTime @default(now())
+
+  @@unique([eventId, consumer])
+  @@map("processed_events")
+}

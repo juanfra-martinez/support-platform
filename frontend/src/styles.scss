@@ -1,0 +1,96 @@
+@use '@angular/material' as mat;
+
+// ---------------------------------------------------------------------------
+// Operations-console theme.
+// Azure primary for a calm, professional surface; a single semantic colour
+// language for ticket workflow state is defined as CSS variables below and
+// reused across chips, dashboard cards and tables.
+// ---------------------------------------------------------------------------
+html {
+  color-scheme: light;
+
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: mat.$azure-palette,
+        tertiary: mat.$cyan-palette,
+      ),
+      typography: (
+        plain-family: 'Inter, system-ui, sans-serif',
+        brand-family: 'Inter, system-ui, sans-serif',
+        bold-weight: 700,
+        medium-weight: 600,
+        regular-weight: 400,
+      ),
+      density: 0,
+    )
+  );
+
+  // Semantic workflow palette (status + priority) -- the design signature.
+  --status-open: #2563eb;
+  --status-in_progress: #7c3aed;
+  --status-pending: #d97706;
+  --status-resolved: #059669;
+  --status-closed: #6b7280;
+
+  --priority-low: #6b7280;
+  --priority-medium: #2563eb;
+  --priority-high: #d97706;
+  --priority-urgent: #dc2626;
+
+  --app-surface: #f6f8fb;
+  --app-border: rgba(0, 0, 0, 0.08);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--app-surface);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  direction: ltr;
+}
+
+// Small global utilities used across feature pages.
+.spacer {
+  flex: 1 1 auto;
+}
+.full-width {
+  width: 100%;
+}
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+.mat-mdc-card {
+  border: 1px solid var(--app-border);
+  box-shadow: none !important;
+}
+
+// Toast notification accents.
+.snackbar-success {
+  --mdc-snackbar-container-color: #065f46;
+  --mat-snack-bar-button-color: #d1fae5;
+  --mdc-snackbar-supporting-text-color: #ecfdf5;
+}
+.snackbar-error {
+  --mdc-snackbar-container-color: #7f1d1d;
+  --mat-snack-bar-button-color: #fee2e2;
+  --mdc-snackbar-supporting-text-color: #fef2f2;
+}

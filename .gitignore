@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out-tsc/
+.angular/
+
+# Environment — only .env.example is committed
+.env
+
+# Test artifacts
+coverage/
+
+# Logs
+*.log
+
+# Local tooling settings
+**/.claude/settings.local.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,22 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { TokenService } from './token.service';
+
+@Module({
+  imports: [
+    ConfigModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    // Secrets/expiry are passed explicitly per-token in TokenService, so no
+    // global secret is registered here.
+    JwtModule.register({}),
+  ],
+  controllers: [AuthController],
+  providers: [AuthService, TokenService, JwtStrategy],
+  exports: [AuthService, TokenService],
+})
+export class AuthModule {}

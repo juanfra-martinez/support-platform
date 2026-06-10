@@ -1,0 +1,39 @@
+# Infrastructure dependencies for local development.
+# (Full app/worker containerization is delivered in the Docker phase.)
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: support-postgres
+    environment:
+      POSTGRES_USER: support
+      POSTGRES_PASSWORD: support
+      POSTGRES_DB: support_platform
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U support -d support_platform']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: support-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: support
+      RABBITMQ_DEFAULT_PASS: support
+    ports:
+      - '5672:5672'   # AMQP
+      - '15672:15672' # Management UI
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

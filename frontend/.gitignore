@@ -1,0 +1,6 @@
+/dist
+/node_modules
+/out-tsc
+/.angular/cache
+*.log
+.env
